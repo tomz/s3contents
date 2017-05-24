@@ -32,6 +32,8 @@ class S3FS(HasTraits):
 
     dir_keep_file = Unicode(
         ".s3keep", help="Empty file to create when creating directories").tag(config=True)
+        
+    objs = {}
 
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
@@ -63,11 +65,16 @@ class S3FS(HasTraits):
         if self.prefix:
             self.mkdir("")
 
-    def get_keys(self, prefix=""):
-        ret = []
+    def get_objs(self, prefix=""):
+        self.objs = {}
         for obj in self.bucket.objects.filter(Prefix=prefix):
-            ret.append(obj.key)
-        return ret
+            self.objs[obj.key]=obj
+
+        self.log.debug("S3contents[S3FS] objs: `%s`", self.objs)
+
+    def get_keys(self, prefix=""):
+        self.get_objs(prefix)    
+        return self.objs.keys()
 
     def listdir(self, path="", with_prefix=False):
         self.log.debug("S3contents[S3FS] Listing directory: `%s`", path)

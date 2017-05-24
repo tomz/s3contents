@@ -10,7 +10,8 @@ from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode
 from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
 
-DUMMY_CREATED_DATE = datetime.fromtimestamp(0)
+#DUMMY_CREATED_DATE = datetime.fromtimestamp(0)
+DUMMY_CREATED_DATE = datetime.today()
 NBFORMAT_VERSION = 4
 
 
@@ -140,8 +141,10 @@ class S3ContentsManager(ContentsManager, HasTraits):
         # path = to_api_path(record['parent_name'] + record['name'])
         model = base_model(path)
         model['type'] = 'notebook'
-        # model['last_modified'] = model['created'] = record['created_at']
-        model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
+        
+        #model['last_modified'] = model['created'] = record['created_at']
+        #model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
+        model['last_modified'] = model['created'] = self.s3fs.objs[path].last_modified
         if content:
             if not self.s3fs.isfile(path):
                 self.no_such_entity(path)
@@ -159,7 +162,9 @@ class S3ContentsManager(ContentsManager, HasTraits):
         """
         model = base_model(path)
         model['type'] = 'file'
-        model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
+
+        #model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
+        model['last_modified'] = model['created'] = self.s3fs.objs[path].last_modified
         if content:
             try:
                 content = self.s3fs.read(path)
