@@ -144,7 +144,12 @@ class S3ContentsManager(ContentsManager, HasTraits):
         
         #model['last_modified'] = model['created'] = record['created_at']
         #model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
-        model['last_modified'] = model['created'] = self.s3fs.objs[path].last_modified
+        objs_key = ""
+        if not self.prefix:
+            objs_key = path
+        else:
+            objs_key = self.prefix+'/'+path 
+        model['last_modified'] = model['created'] = self.s3fs.get_objs(self.prefix)[objs_key].last_modified
         if content:
             if not self.s3fs.isfile(path):
                 self.no_such_entity(path)
@@ -164,7 +169,13 @@ class S3ContentsManager(ContentsManager, HasTraits):
         model['type'] = 'file'
 
         #model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
-        model['last_modified'] = model['created'] = self.s3fs.objs[path].last_modified
+        #model['last_modified'] = model['created'] = self.objs[self.prefix+'/'+path].last_modified
+        objs_key = ""
+        if not self.prefix:
+            objs_key = path
+        else:
+            objs_key = self.prefix+'/'+path
+        model['last_modified'] = model['created'] = self.s3fs.get_objs(self.prefix)[objs_key].last_modified
         if content:
             try:
                 content = self.s3fs.read(path)

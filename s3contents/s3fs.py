@@ -71,6 +71,7 @@ class S3FS(HasTraits):
             self.objs[obj.key]=obj
 
         self.log.debug("S3contents[S3FS] objs: `%s`", self.objs)
+        return self.objs
 
     def get_keys(self, prefix=""):
         self.get_objs(prefix)    
